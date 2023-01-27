@@ -191,6 +191,14 @@
 #############################################################################################################################################################################################
 #############################################################################################################################################################################################
 
+# TODO add code for popping out IPs through CLI instead of browser, and getting rid of process tree
+#region CLI
+param (
+    [String] $MemoryDumpPath,
+    [String] $PagefilePath
+)
+#endregion CLI
+
 #region Declarations
 
 # Declarations
@@ -607,6 +615,7 @@ Function Show-UserInterface
     $LabelPageFile.Text = 'Page File:'
 
     # ButtonBrowse1
+    # TODO
     $ButtonBrowse1.Location = New-Object System.Drawing.Point(539, 33)
     $ButtonBrowse1.Name = 'ButtonBrowse1'
     $ButtonBrowse1.Size = New-Object System.Drawing.Size(75, 23)
@@ -790,24 +799,40 @@ Function Show-UserInterface
     return $FormMemProcFSAnalyzer.ShowDialog((New-Object System.Windows.Forms.Form -Property @{TopMost = $true}))
 }
 
-$Result = Show-UserInterface
+# if the CLI path was provided
+if ($MemoryDumpPath -ne "") {
+    $script:MemoryDump = $MemoryDumpPath
 
-if($Result -eq "OK")
-{
-    if ($Pagefile -eq "Select your pagefile.sys (Optional)")
-    {
+    # sets pagefile to null instead of empty string
+    if ($PagefilePath -eq "") {
         $script:Pagefile = $null
     }
+    else {
+        $script:Pagefile = $PagefilePath
+    }
 }
-else
-{
-    $Host.UI.RawUI.WindowTitle = "$DefaultWindowsTitle"
-    Exit
+# else CLI path wasn't provided
+else {
+    $Result = Show-UserInterface
+
+    if($Result -eq "OK")
+    {
+        if ($Pagefile -eq "Select your pagefile.sys (Optional)")
+        {
+            $script:Pagefile = $null
+        }
+    }
+    else
+    {
+        $Host.UI.RawUI.WindowTitle = "$DefaultWindowsTitle"
+        Exit
+    }
 }
 
 #############################################################################################################################################################################################
 
 # FileName
+# TODO
 $script:FileName = $MemoryDump.Split('\')[-1] | ForEach-Object{($_ -replace "\..*","")}
 
 # Output Directory
